@@ -1,0 +1,127 @@
+const inquirer = require("inquirer");
+const mysql = require("mysql");
+//const cTable = require('console.table')
+const { printTable } = require('console-table-printer');
+// create the connection information for the sql database
+var connection = mysql.createConnection({
+    host: "localhost",
+  
+    // Your port; if not 3306
+    port: 3306,
+  
+    // Your username
+    user: "root",
+  
+    // Your password
+    password: "root",
+    database: "employees_db"
+  });
+  
+  // connect to the mysql server and sql database
+  connection.connect(function(err) {
+    if (err) throw err;
+    // run the start function after the connection is made to prompt the user
+    start();
+  });
+
+// function which prompts the user for what action they should take
+function start() {
+    inquirer
+      .prompt({
+        type: "list",
+        message: "What would you like to do?",
+        name: "choice",
+        choices: [
+            "View Employees", "View Roles", "View Departments", "Add Employee", "Add Role", "Add Department", "Update Employee Role", "Exit"
+        ]
+      })
+      .then(function(answer) {
+        // based on their answer, either call the bid or the post functions
+        switch (answer.choice) {
+            case "View Employees":
+              viewEmployees();
+              break;
+      
+            case "View Roles":
+              viewRoles();
+              break;
+      
+            case "View Departments":
+              viewDepartments();
+              break;
+      
+            case "Add Employee":
+              addEmployee();
+              break;
+            case "Add Role":
+              addRole();
+              break;
+            case "Add Department":
+              addDepartment();
+              break;
+            case "Update Employee Role":
+              updateEmployeeRole();
+              break;
+            case "Exit":
+              connection.end();
+              break;
+            }
+      });
+  }
+
+const viewEmployees = () => {
+    const joinTable = "SELECT employee.first_name AS First, employee.last_name AS Last, role.title FROM employee LEFT JOIN role ON employee.role_id = role.role_id;"
+    connection.query(joinTable, (err, res) => {
+      if (err) throw err;
+      printTable(res)
+      
+      start();
+    })
+    console.log("\n List of all employees from database\n");
+}
+
+const viewRoles = () => {
+  const joinTable = "SELECT role.title, role.salary, department.name FROM role LEFT JOIN department ON role.department_id = department.department_id;"
+  connection.query(joinTable, (err, res) => {
+    if (err) throw err;
+    printTable(res);
+    start();
+  })
+  console.log("\n List of titles, salaries and departments from database\n");
+  
+}
+
+const viewDepartments = () => {
+  const departments = connection.query("SELECT department.name FROM department", (err, res) => {
+    if (err) throw err;
+    printTable(res);
+    start();
+  })
+  console.log("\n List of all the departments\n");
+  
+}
+
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What department would you like to add?",
+        name: "department"
+      }
+    ]).then(answer => {
+        connection.query(
+          "INSERT INTO department SET ?",
+          {
+            name: answer.department
+          },
+          function(err) {
+            if (err) throw err;
+          })
+        console.log(`\n Department ${answer.department} added`);
+        start();
+
+    })
+}
+
+

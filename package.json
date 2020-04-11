@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/DDavidson202020/Employee_Tracker#readme",
   "dependencies": {
+    "console-table-printer": "^1.2.13",
+    "console.table": "^0.10.0",
     "inquirer": "^7.1.0",
     "mysql": "^2.18.1"
   }
