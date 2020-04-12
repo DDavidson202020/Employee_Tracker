@@ -230,3 +230,76 @@ const addEmployee = () => {
     })
   })
 }
+
+const updateEmployeeRole = () => {
+  const joinTable = "SELECT employee.first_name AS First, employee.last_name AS Last, role.title FROM employee LEFT JOIN role ON employee.role_id = role.role_id;"
+    connection.query(joinTable, (err, res) => {
+      if (err) throw err;
+      printTable(res)
+    })
+
+    connection.query("SELECT employee.first_name, employee.last_name, employee.employee_id FROM employee", (err,res) => {
+      if(err) throw err;
+      const pickEmployee = res.map((name) => {
+        return `${name.first_name} ${name.last_name}`
+      })
+
+    connection.query("SELECT role.title, role.role_id FROM role", (err,result) => {
+      if(err) throw err;
+      const pickRole = result.map((role) => {
+        return `${role.title}`
+      })
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "Which employee would you like to update?",
+        name: "update",
+        choices: pickEmployee
+      },
+      {
+        type: "list",
+        message: "What type of role would you like to update to?",
+        name: "typeOfRole",
+        choices: pickRole
+      }
+    ]).then(answer => {
+      var roleId;
+        for (let i = 0; i < result.length; i++) {
+            if (result[i].title == answer.typeOfRole) {
+                roleId = result[i].role_id;
+            }
+        }
+      console.log(roleId)
+
+      var employeeId;
+      console.log(res)
+        for (let j = 0; j < res.length; j++) {
+            if (`${res[j].first_name}  ${res[j].last_name}`  == answer.update) {
+                employeeId = res[j].employee_id;
+            }
+        }
+      console.log(employeeId)
+
+      connection.query(
+        
+        "UPDATE employee SET ? WHERE ?",
+      [
+        {
+          role_id: roleId
+        },
+        {
+          employee_id: employeeId
+        }
+      ],
+        function(err) {
+          if (err) throw err;
+          console.log(`\n New employee role for ${answer.update}  has been updated\n`);
+          // re-prompt the user for if they want to bid or post
+          start();
+        }
+      );
+    })
+  })
+})
+}

@@ -44,3 +44,5 @@ INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES("Susan",
 INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES("Lisa", "High", 103, 1003);
 INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES("Bill", "Funesti", 104, null);
 INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES("Kitty", "Red", 105, 1005);
+
+UPDATE employee SET role_id = 100 WHERE employee_id = 1000;
