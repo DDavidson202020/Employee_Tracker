@@ -118,10 +118,66 @@ const addDepartment = () => {
           function(err) {
             if (err) throw err;
           })
-        console.log(`\n Department ${answer.department} added`);
+        console.log(`\n Department ${answer.department} added\n`);
         start();
 
     })
 }
 
+const addRole = () => {
+  
+  connection.query("SELECT * FROM department", (err,res) => {
+    if(err) throw err;
+    const departmentName = res.map((name1) => {
+      return `${name1.name}`
+    })
+    
+    
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What new role would you like to add?",
+        name: "role"
+      },
+      {
+        type: "input",
+        message: "What hourly rate is for the new role?",
+        name: "salary"
+      },
+      {
+        type: "list",
+        message: "What department does this new role belong to?",
+        name: "department",
+        choices: departmentName
+      }
+    ]).then(answer => {
+      let departmentId;
+        for (let i = 0; i < res.length; i++) {
+            if (res[i].name == answer.department) {
+                departmentId = res[i].department_id;
+            }
+        }
+    
+      // when finished prompting, insert a new item into the db with that info
+      connection.query(
+        "INSERT INTO role SET ?",
+        {
+          title: answer.role,
+          salary: answer.salary,
+          department_id: departmentId
+        },
+        function(err) {
+          if (err) throw err;
+          console.log(`\n New role ${answer.role} has been added\n`);
+          // re-prompt the user for if they want to bid or post
+          start();
+        }
+      );
+    })
+  })
+}
 
+const addEmployee = () => {
+  
+}
