@@ -179,5 +179,54 @@ const addRole = () => {
 }
 
 const addEmployee = () => {
-  
+  connection.query("SELECT * FROM role", (err,res) => {
+    if(err) throw err;
+    const newRole = res.map((role) => {
+      return `${role.title}`
+    })
+    
+    
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What's the new employee's first name?",
+        name: "first"
+      },
+      {
+        type: "input",
+        message: "What's the new employee's last name?",
+        name: "last"
+      },
+      {
+        type: "list",
+        message: "What role does this new employee have?",
+        name: "role",
+        choices: newRole
+      }
+    ]).then(answer => {
+      let roleId;
+        for (let i = 0; i < res.length; i++) {
+            if (res[i].title == answer.role) {
+                roleId = res[i].role_id;
+            }
+        }
+    
+      // when finished prompting, insert a new item into the db with that info
+      connection.query(
+        "INSERT INTO employee SET ?",
+        {
+          first_name: answer.first,
+          last_name: answer.last,
+          role_id: roleId
+        },
+        function(err) {
+          if (err) throw err;
+          console.log(`\n New employee ${answer.first} ${answer.last} has been added\n`);
+          // re-prompt the user for if they want to bid or post
+          start();
+        }
+      );
+    })
+  })
 }
