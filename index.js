@@ -1,6 +1,5 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
-//const cTable = require('console.table')
 const { printTable } = require('console-table-printer');
 // create the connection information for the sql database
 var connection = mysql.createConnection({
@@ -36,7 +35,7 @@ function start() {
         ]
       })
       .then(function(answer) {
-        // based on their answer, either call the bid or the post functions
+        // based on their answer, call the correct function
         switch (answer.choice) {
             case "View Employees":
               viewEmployees();
@@ -68,40 +67,49 @@ function start() {
             }
       });
   }
-
+// Declare viewEmployees function
 const viewEmployees = () => {
+  // Join 2 tables together from database
     const joinTable = "SELECT employee.first_name AS First, employee.last_name AS Last, role.title FROM employee LEFT JOIN role ON employee.role_id = role.role_id;"
+    // query the result from joining tables and log the table out 
     connection.query(joinTable, (err, res) => {
       if (err) throw err;
       printTable(res)
-      
+      // Call the start function to take user to the option list of what to do next
       start();
     })
     console.log("\n List of all employees from database\n");
 }
-
+// Declare viewRoles function
 const viewRoles = () => {
+  // Join 2 tables together from database
   const joinTable = "SELECT role.title, role.salary, department.name FROM role LEFT JOIN department ON role.department_id = department.department_id;"
+  // query the result from joining tables and log the table out
   connection.query(joinTable, (err, res) => {
     if (err) throw err;
     printTable(res);
+    // Call the start function to take user to the option list of what to do next
     start();
   })
   console.log("\n List of titles, salaries and departments from database\n");
   
 }
-
+// Declare viewDepartments function
 const viewDepartments = () => {
+  // Query the result from selecting certain info from department table
   const departments = connection.query("SELECT department.name FROM department", (err, res) => {
     if (err) throw err;
+    // Log out the info table
     printTable(res);
+    // Call the start function to take user to the option list of what to do next
     start();
   })
   console.log("\n List of all the departments\n");
   
 }
-
+// Declare addDepartment function
 const addDepartment = () => {
+  // use inquirer to prompt user to a question to collect info
   inquirer
     .prompt([
       {
@@ -110,6 +118,7 @@ const addDepartment = () => {
         name: "department"
       }
     ]).then(answer => {
+      // Use the info collected to insert into database table
         connection.query(
           "INSERT INTO department SET ?",
           {
@@ -123,16 +132,16 @@ const addDepartment = () => {
 
     })
 }
-
+// Declare the addRole function
 const addRole = () => {
-  
+  // Query the response and then use the map function to get the department name back
   connection.query("SELECT * FROM department", (err,res) => {
     if(err) throw err;
     const departmentName = res.map((name1) => {
       return `${name1.name}`
     })
     
-    
+  // use inquirer to prompt user to some questions to collect info 
   inquirer
     .prompt([
       {
