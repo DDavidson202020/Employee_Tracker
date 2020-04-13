@@ -294,23 +294,20 @@ const updateEmployeeRole = () => {
                 roleId = result[i].role_id;
             }
         }
-      console.log(roleId)
 
-      var employeeId;
-      console.log(res)
+      var employeeId = "";
       // Loop through the response from Query select some certain info from employee table
         for (let j = 0; j < res.length; j++) {
+          var fullName = res[j].first_name +" "+ res[j].last_name;
           // If full name equals user answer
-            if (`${res[j].first_name}  ${res[j].last_name}`  == answer.update) {
+            if (fullName == answer.update) {
               // Then store the employee_id of that employee to a variable
                 employeeId = res[j].employee_id;
             }
         }
-      console.log(employeeId)
       // Query update the info in database
       connection.query(
-        
-        "UPDATE employee SET ? WHERE ?",
+      "UPDATE employee SET ? WHERE ?",
       [
         {
           role_id: roleId
