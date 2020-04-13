@@ -137,6 +137,7 @@ const addRole = () => {
   // Query the response and then use the map function to get the department name back
   connection.query("SELECT * FROM department", (err,res) => {
     if(err) throw err;
+    // Use map method to get all the department names in an array
     const departmentName = res.map((name1) => {
       return `${name1.name}`
     })
@@ -162,7 +163,9 @@ const addRole = () => {
       }
     ]).then(answer => {
       let departmentId;
+      // Loop through the response from select * from department table to get the department id
         for (let i = 0; i < res.length; i++) {
+          // If department name in database equals to user answer
             if (res[i].name == answer.department) {
                 departmentId = res[i].department_id;
             }
@@ -179,22 +182,24 @@ const addRole = () => {
         function(err) {
           if (err) throw err;
           console.log(`\n New role ${answer.role} has been added\n`);
-          // re-prompt the user for if they want to bid or post
+          // re-prompt the user for what to do next
           start();
         }
       );
     })
   })
 }
-
+//Declare addEmployee function
 const addEmployee = () => {
+  // Query select all from role table
   connection.query("SELECT * FROM role", (err,res) => {
     if(err) throw err;
+    // Use map function to get all titles info in an array
     const newRole = res.map((role) => {
       return `${role.title}`
     })
     
-    
+  // Prompt user questions to get info  
   inquirer
     .prompt([
       {
@@ -215,7 +220,9 @@ const addEmployee = () => {
       }
     ]).then(answer => {
       let roleId;
+      // Loop through the response from selecting all from role table
         for (let i = 0; i < res.length; i++) {
+          // if title from role table in database equals to user answer
             if (res[i].title == answer.role) {
                 roleId = res[i].role_id;
             }
@@ -232,32 +239,37 @@ const addEmployee = () => {
         function(err) {
           if (err) throw err;
           console.log(`\n New employee ${answer.first} ${answer.last} has been added\n`);
-          // re-prompt the user for if they want to bid or post
+          // re-prompt the user for what to do next
           start();
         }
       );
     })
   })
 }
-
+// Declare updateEmployeeRole function
 const updateEmployeeRole = () => {
+  // Join tables from database
   const joinTable = "SELECT employee.first_name AS First, employee.last_name AS Last, role.title FROM employee LEFT JOIN role ON employee.role_id = role.role_id;"
     connection.query(joinTable, (err, res) => {
       if (err) throw err;
+      // Print out the table with info from joining tables
       printTable(res)
     })
-
+    // Query select certain info from employee table
     connection.query("SELECT employee.first_name, employee.last_name, employee.employee_id FROM employee", (err,res) => {
       if(err) throw err;
+      // Use map method to get full names in an array from employee table
       const pickEmployee = res.map((name) => {
         return `${name.first_name} ${name.last_name}`
       })
-
+    // Query select some info from role table
     connection.query("SELECT role.title, role.role_id FROM role", (err,result) => {
       if(err) throw err;
+      // Map method to get titles list in an array 
       const pickRole = result.map((role) => {
         return `${role.title}`
       })
+  // Prompt user for questions to get info
   inquirer
     .prompt([
       {
@@ -274,8 +286,11 @@ const updateEmployeeRole = () => {
       }
     ]).then(answer => {
       var roleId;
+      // Loop throught the result from Query select some info from role table
         for (let i = 0; i < result.length; i++) {
+          // If title equals to user answer
             if (result[i].title == answer.typeOfRole) {
+              // Then store the role_id of that title to a variable
                 roleId = result[i].role_id;
             }
         }
@@ -283,13 +298,16 @@ const updateEmployeeRole = () => {
 
       var employeeId;
       console.log(res)
+      // Loop through the response from Query select some certain info from employee table
         for (let j = 0; j < res.length; j++) {
+          // If full name equals user answer
             if (`${res[j].first_name}  ${res[j].last_name}`  == answer.update) {
+              // Then store the employee_id of that employee to a variable
                 employeeId = res[j].employee_id;
             }
         }
       console.log(employeeId)
-
+      // Query update the info in database
       connection.query(
         
         "UPDATE employee SET ? WHERE ?",
@@ -304,7 +322,7 @@ const updateEmployeeRole = () => {
         function(err) {
           if (err) throw err;
           console.log(`\n New employee role for ${answer.update}  has been updated\n`);
-          // re-prompt the user for if they want to bid or post
+          // re-prompt the user for what to do next
           start();
         }
       );
